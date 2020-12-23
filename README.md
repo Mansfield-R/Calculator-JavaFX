@@ -60,8 +60,6 @@
 
 Rick Mansfield - [LinkedIn](https://www.linkedin.com/in/rickmansfield/) - mansfieldrick.business@gmail.com
 
-Project Link: [https://github.com/Mansfield-R/Calculator-JavaFX](https://github.com/Mansfield-R/Calculator-JavaFX)
-
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
