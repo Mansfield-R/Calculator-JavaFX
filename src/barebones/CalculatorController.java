@@ -6,163 +6,179 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 public class CalculatorController implements Initializable {
 
-    @FXML
-    private Button dot;
+	@FXML
+	private Button equals;
 
-    @FXML
-    private Button equals;
+	@FXML
+	private Button add;
 
-    @FXML
-    private Button add;
+	@FXML
+	private Button subtract;
 
-    @FXML
-    private Button subtract;
+	@FXML
+	private Button multiply;
 
-    @FXML
-    private Button multiply;
+	@FXML
+	private Button divide;
 
-    @FXML
-    private Button divide;
+	@FXML
+	private Button clear;
 
-    @FXML
-    private Button clear;
+	@FXML
+	private Button delete;
 
-    @FXML
-    private Button delete;
+	@FXML
+	private Button negative;
 
-    @FXML
-    private Button negative;
+	@FXML
+	private Button zero;
 
-    @FXML
-    private TextField display;
+	@FXML
+	private Button one;
 
+	@FXML
+	private Button two;
 
-    @FXML
-    public void handleNumbers(ActionEvent actionEvent) {
-        String number = ((Button)actionEvent.getSource()).getText();
-        display.setText(display.getText() + number);
-    }
+	@FXML
+	private Button three;
 
-    @FXML
-    public void handleButtonAction(ActionEvent event) {
-//
-//        // Create if statements for inputs:
-//        if (event.getSource() == zero) {
-//            display.setText(display.getText() + "0");
-//        } else if (event.getSource() == one) {
-//            display.setText(display.getText() + "1");
-//        } else if (event.getSource() == two) {
-//            display.setText(display.getText() + "2");
-//        } else if (event.getSource() == three) {
-//            display.setText(display.getText() + "3");
-//        } else if (event.getSource() == four) {
-//            display.setText(display.getText() + "4");
-//        } else if (event.getSource() == five) {
-//            display.setText(display.getText() + "5");
-//        } else if (event.getSource() == six) {
-//            display.setText(display.getText() + "6");
-//        } else if (event.getSource() == seven) {
-//            display.setText(display.getText() + "7");
-//        } else if (event.getSource() == eight) {
-//            display.setText(display.getText() + "8");
-//        } else if (event.getSource() == nine) {
-//            display.setText(display.getText() + "9");
-//        } else if (event.getSource() == dot) {
-//            // Check for decimal place already cannot add more than one:
-//            if (!hasOneDecimal(display)) {
-//                display.setText(display.getText() + ".");
-//            }
-//        } else if (event.getSource() == add) {
-//            // Store current input into memory:
-//            this.operand = parseDisplayTextForDouble(display);
-//            // Addition Operator set to 1:
-//            this.operator = 1;
-//            // Clear display for new input:
-//            display.setText("");
-//        } else if (event.getSource() == subtract) {
-//            this.operand = parseDisplayTextForDouble(display);
-//            this.operator = 2;
-//            display.setText("");
-//        } else if (event.getSource() == multiply) {
-//            this.operand = parseDisplayTextForDouble(display);
-//            this.operator = 3;
-//            display.setText("");
-//        } else if (event.getSource() == divide) {
-//            this.operand = parseDisplayTextForDouble(display);
-//            this.operator = 4;
-//            display.setText("");
-//        } else if (event.getSource() == equals) {
-//            double secondOperand = Double.parseDouble(display.getText());
-//            // Switch case for operating:
-//            switch (operator) {
-//                // Addition
-//                case 1:
-//                    double additionAnswer = operand + secondOperand;
-//                    display.setText(String.valueOf(additionAnswer));
-//                    // Subtraction
-//                case 2:
-//                    double subtractionAnswer = operand - secondOperand;
-//                    display.setText(String.valueOf(subtractionAnswer));
-//                    // Multiplication
-//                case 3:
-//                    double multiplicationAnswer = operand * secondOperand;
-//                    display.setText(String.valueOf(multiplicationAnswer));
-//                    // Division
-//                case 4:
-//                    if (secondOperand == 0) {
-//                        display.setText("Cannot divide by Zero");
-//                    } else {
-//                        double divisionAnswer = operand / secondOperand;
-//                        display.setText(String.valueOf(divisionAnswer));
-//                    }
-//            }
-//        } else if (event.getSource() == clear) {
-//            display.clear();
-//        } else if (event.getSource() == delete) {
-//            // Call method that uses String builder to delete last character:
-//            deleteFunctionality(display);
-//        }
-    }
+	@FXML
+	private Button four;
 
-    @FXML
-    public boolean hasOneDecimal(TextField textField) {
-        return textField.getText().contains(".");
-    }
+	@FXML
+	private Button five;
 
-//    @FXML
-//    public void applyTextFormatter(TextField textField) {
+	@FXML
+	private Button six;
+
+	@FXML
+	private Button seven;
+
+	@FXML
+	private Button eight;
+
+	@FXML
+	private Button nine;
+
+	@FXML
+	private Button dot;
+
+	private Button selectedOp;
+
+	private StringBuilder currentDisplayValue;
+
+	@FXML
+	private TextField display;
+
+	private HashMap<Button, InputElement> buttonValueMap = new HashMap<Button, InputElement>();
+
+	private CalculatorModel calc = new CalculatorModel();
+
+	@FXML
+	public void handleNumbers(ActionEvent actionEvent) {
+		currentDisplayValue.append(calc.pushToNextOp(buttonValueMap.get(actionEvent.getSource())));
+		display.setText(currentDisplayValue.toString());
+	}
+
+	@FXML
+	public void handleOpActions(ActionEvent event) {
+		Button source = (Button) event.getSource();
+
+		if (source == equals) {
+			if (selectedOp != null) {
+				if (selectedOp == add) {
+					calc.add();
+				} else if (selectedOp == subtract) {
+					calc.subtract();
+				} else if (selectedOp == multiply) {
+					calc.multiply();
+				} else if (selectedOp == divide) {
+					calc.divide();
+				}
+				currentDisplayValue = new StringBuilder();
+				currentDisplayValue.append(calc.getCurValue());
+				display.setText(currentDisplayValue.toString());
+			}
+		} else if (source == negative) {
+			calc.handleIfFirstInput();
+			calc.negate();
+			currentDisplayValue = new StringBuilder();
+			currentDisplayValue.append(calc.getCurValue());
+			display.setText(currentDisplayValue.toString());
+		} else {
+			selectedOp = source;
+			calc.handleIfFirstInput();
+			display.setText(currentDisplayValue.toString());
+			currentDisplayValue = new StringBuilder();
+		}
+	}
+
+	@FXML
+	public void handleClear() {
+		calc.clear();
+		currentDisplayValue = new StringBuilder();
+		display.setText("0");
+	}
+
+	@FXML
+	public void handleDelete() {
+		try {
+			calc.popFromNextOp();
+			currentDisplayValue.deleteCharAt(currentDisplayValue.length() - 1);
+			display.setText(currentDisplayValue.toString());
+		} catch (EmptyStackException ese) {
+			// pass
+		}
+	}
+
+	@FXML
+	public void getFormattedText() {
+//    	calc.curValueIsInt();
 //        textField.setTextFormatter(textFormatter);
-//    }
+	}
 
-    @FXML
-    public Double parseDisplayTextForDouble(TextField textField) {
-        return Double.parseDouble(textField.getText());
-    }
+	// Delete Button Functionality; Pass in the text field use string builder to
+	// manipulate.
+	@FXML
+	public void deleteFunctionality(TextField textField) {
+		// Pass the text in the field to string builder:
+		StringBuilder str = new StringBuilder(textField.getText());
+		// As long as there is something in the string, delete the last character in the
+		// string.
+		if (str.length() != 0) {
+			str.deleteCharAt((str.length() - 1));
+			String newText = str.toString();
+			textField.setText(newText);
+		}
+	}
 
-    // Delete Button Functionality; Pass in the text field use string builder to manipulate.
-    @FXML
-    public void deleteFunctionality(TextField textField) {
-        // Pass the text in the field to string builder:
-        StringBuilder str = new StringBuilder(textField.getText());
-        // As long as there is something in the string, delete the last character in the string.
-        if (str.length() != 0) {
-            str.deleteCharAt((str.length() - 1));
-            String newText = str.toString();
-            textField.setText(newText);
-        }
-    }
+	@Override
+	public void initialize(URL url, ResourceBundle resourceBundle) {
+		buttonValueMap.put(zero, new Digit(0));
+		buttonValueMap.put(one, new Digit(1));
+		buttonValueMap.put(two, new Digit(2));
+		buttonValueMap.put(three, new Digit(3));
+		buttonValueMap.put(four, new Digit(4));
+		buttonValueMap.put(five, new Digit(5));
+		buttonValueMap.put(six, new Digit(6));
+		buttonValueMap.put(seven, new Digit(7));
+		buttonValueMap.put(eight, new Digit(8));
+		buttonValueMap.put(nine, new Digit(9));
+		buttonValueMap.put(dot, new Decimal());
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+		currentDisplayValue = new StringBuilder();
 
-    }
-
-
+		display.setText("0");
+	}
 
 //    TextFormatter<Double> textFormatter = new TextFormatter<>(converter, 0.0, filter);
 
